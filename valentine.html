@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine? 💘</title>
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(-45deg, #ff6b6b, #ff8e8e, #ffb3b3, #ffd6d6);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
+            max-width: 90%;
+            transform: scale(0.95);
+            animation: containerEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        @keyframes containerEntrance {
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            color: #ff3366;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .heart-container {
+            font-size: 3rem;
+            margin: 2rem 0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .heart-container:hover {
+            transform: scale(1.2);
+        }
+
+        .options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #yesBtn {
+            background: #ff3366;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+        }
+
+        #yesBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6);
+        }
+
+        #noBtn {
+            background: #4a4a4a;
+            color: white;
+            transition: all 0.1s ease;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .photo-grid img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-grid img:hover {
+            transform: scale(1.05);
+        }
+
+        .message {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            animation: messageEntrance 0.5s ease-out;
+        }
+
+        @keyframes messageEntrance {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .floating-hearts {
+            position: fixed;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hey Love! 💖 Will You Be My Valentine?</h1>
+        
+        <div class="heart-container" onclick="createHearts()">❤️</div>
+
+        <div class="photo-grid">
+            <img src="placeholder1.jpg" alt="Our Memory 1">
+            <img src="placeholder2.jpg" alt="Our Memory 2">
+            <img src="placeholder3.jpg" alt="Our Memory 3">
+        </div>
+
+        <div class="options">
+            <button id="yesBtn" onclick="showResponse(true)">YES! 🎉</button>
+            <button id="noBtn" onmouseover="dodgeButton()" ontouchstart="dodgeButton()">Hmm... 🤔</button>
+        </div>
+
+        <div id="message" class="message">
+            <h2>YAY! 🥰</h2>
+            <p>Get ready for:<br>
+            - Romantic cheesiness overload<br>
+            - Infinite cuddles<br>
+            - Your favorite treats<br>
+            - All my love! 💕</p>
+        </div>
+    </div>
+
+    <div class="floating-hearts" id="heartsContainer"></div>
+
+    <script>
+        // Enhanced animations
+        function createHearts() {
+            const container = document.getElementById('heartsContainer');
+            for(let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                heart.style = `
+                    position: absolute;
+                    left: ${Math.random() * 100}%;
+                    font-size: ${Math.random() * 30 + 20}px;
+                    animation: float ${Math.random() * 3 + 2}s ease-in infinite;
+                    opacity: ${Math.random() * 0.5 + 0.5};
+                `;
+                heart.innerHTML = '❤️';
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }
+        }
+
+        // Dodge button with rotation
+        function dodgeButton() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * window.innerWidth * 0.5;
+            const y = Math.random() * window.innerHeight * 0.3;
+            btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 360}deg)`;
+            btn.innerHTML = ['Try harder! 😜','Podi 😤', 'Nope! 🙅', 'Not today! 😅', 'Catch me! 🏃'][Math.floor(Math.random()*4)];
+        }
+
+        // Response handler with confetti
+        function showResponse(yes) {
+            if(yes) {
+                document.getElementById('message').style.display = 'block';
+                document.querySelector('.options').style.display = 'none';
+                triggerConfetti();
+                createHearts();
+            }
+        }
+
+        // Confetti explosion
+        function triggerConfetti() {
+            const count = 200;
+            const defaults = {
+                origin: { y: 0.7 },
+                colors: ['#ff3366', '#ffffff', '#ffd700'],
+                shapes: ['circle', 'square']
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        // Add floating hearts periodically
+        setInterval(createHearts, 3000);
+
+        // Initialize hover effects
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousemove', e => {
+                const rect = btn.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width * 100;
+                const y = (e.clientY - rect.top) / rect.height * 100;
+                btn.style.background = `radial-gradient(circle at ${x}% ${y}%, 
+                    ${btn.id === 'yesBtn' ? '#ff1a4d' : '#333333'}, 
+                    ${btn.id === 'yesBtn' ? '#ff3366' : '#4a4a4a'})`;
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</body>
+</html>
