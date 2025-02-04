@@ -32,7 +32,7 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
@@ -40,6 +40,7 @@
             transform: scale(0.95);
             animation: containerEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
             position: relative;
+            z-index: 2;
         }
 
         @keyframes containerEntrance {
@@ -114,6 +115,8 @@
             border-radius: 15px;
             margin-top: 2rem;
             animation: messageEntrance 0.5s ease-out;
+            position: relative;
+            z-index: 3;
         }
 
         @keyframes messageEntrance {
@@ -128,20 +131,43 @@
             height: 100%;
             top: 0;
             left: 0;
-            z-index: 999;
+            z-index: 5;
         }
 
         .heart {
             position: absolute;
-            font-size: 24px;
-            animation: float 5s ease-in infinite;
+            animation: heartJump 2s ease-out forwards;
             opacity: 0;
+            transform: translate(-50%, -50%);
+            --x1: 0;
+            --y1: 0;
+            --x2: 0;
+            --y2: 0;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) translateX(0) scale(0); opacity: 1; }
-            50% { transform: translateY(-100px) translateX(50px) scale(1); opacity: 1; }
-            100% { transform: translateY(-200px) translateX(100px) scale(0); opacity: 0; }
+        @keyframes heartJump {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: 
+                    translate(
+                        calc(-50% + var(--x1)),
+                        calc(-50% - var(--y1))
+                    ) 
+                    scale(1.5);
+                opacity: 1;
+            }
+            100% {
+                transform: 
+                    translate(
+                        calc(-50% + var(--x2)),
+                        calc(-50% - var(--y2))
+                    ) 
+                    scale(0);
+                opacity: 0;
+            }
         }
 
         @media (max-width: 768px) {
@@ -196,7 +222,6 @@
             const yesRect = yesBtn.getBoundingClientRect();
             const noRect = noBtn.getBoundingClientRect();
             
-            // Account for container padding
             const style = window.getComputedStyle(container);
             const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
             const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
@@ -258,33 +283,54 @@
         noBtn.addEventListener('mouseover', moveButton);
         window.addEventListener('resize', moveButton);
 
+        function createHearts(count = 50) {
+            const container = document.getElementById('heartsContainer');
+            const colors = ['#ff3366', '#ff1493', '#ff69b4', '#ff85a2'];
+            
+            for(let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                
+                const x1 = Math.random() * 40 - 20;
+                const y1 = Math.random() * 30;
+                const x2 = Math.random() * 80 - 40;
+                const y2 = Math.random() * 60 + 30;
+
+                heart.style.cssText = `
+                    left: 50%;
+                    top: 50%;
+                    color: ${colors[Math.floor(Math.random() * colors.length)]};
+                    font-size: ${Math.random() * 40 + 20}px;
+                    --x1: ${x1}vw;
+                    --y1: ${y1}vh;
+                    --x2: ${x2}vw;
+                    --y2: ${y2}vh;
+                    animation-duration: ${Math.random() * 1 + 2}s;
+                `;
+
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 2000);
+            }
+        }
+
         function showResponse(yes) {
             if(yes) {
                 document.getElementById('message').style.display = 'block';
                 document.querySelector('.options').style.display = 'none';
                 triggerConfetti();
-                createHearts();
-                setInterval(createHearts, 1000);
-            }
-        }
-
-        function createHearts() {
-            const container = document.getElementById('heartsContainer');
-            const colors = ['#ff3366', '#ff1493', '#ff69b4', '#ff85a2'];
-            
-            for(let i = 0; i < 20; i++) {
-                const heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.innerHTML = '❤️';
-                heart.style.cssText = `
-                    left: ${Math.random() * 100}%;
-                    font-size: ${Math.random() * 30 + 20}px;
-                    color: ${colors[Math.floor(Math.random() * colors.length)]};
-                    animation: float ${Math.random() * 4 + 3}s ease-in infinite;
-                    animation-delay: ${Math.random() * 2}s;
-                `;
-                container.appendChild(heart);
-                setTimeout(() => heart.remove(), 5000);
+                
+                // Big initial explosion
+                createHearts(100);
+                setTimeout(() => createHearts(75), 200);
+                setTimeout(() => createHearts(75), 400);
+                
+                // Ongoing hearts
+                const heartInterval = setInterval(() => {
+                    createHearts(Math.random() * 10 + 10);
+                }, 1000);
+                
+                setTimeout(() => clearInterval(heartInterval), 5000);
             }
         }
 
