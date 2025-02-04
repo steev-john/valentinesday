@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Will You Be My Valentine? 💘</title>
     <style>
+        :root {
+            --button-size: 120px;
+            --mobile-button-size: 90px;
+        }
+
         body {
             font-family: 'Comic Neue', cursive;
             background: linear-gradient(-45deg, #ff6b6b, #ff8e8e, #ffb3b3, #ffd6d6);
@@ -17,7 +22,7 @@
             align-items: center;
             text-align: center;
             overflow: hidden;
-            padding: 10px;
+            touch-action: manipulation;
         }
 
         @keyframes gradient {
@@ -31,10 +36,10 @@
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
-            width: 80%;
-            max-width: 700px;
+            max-width: 90%;
             transform: scale(0.95);
             animation: containerEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            position: relative;
         }
 
         @keyframes containerEntrance {
@@ -43,7 +48,7 @@
 
         h1 {
             color: #ff3366;
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin: 1rem 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             animation: titleFloat 3s ease-in-out infinite;
@@ -56,41 +61,50 @@
 
         .options {
             display: flex;
-            flex-wrap: wrap;
             gap: 1rem;
             justify-content: center;
             margin: 2rem 0;
             position: relative;
+            min-height: var(--button-size);
         }
 
         button {
             padding: 1rem 2rem;
             border: none;
             border-radius: 15px;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            width: 100%;
-            max-width: 250px;
+            position: absolute;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+            width: var(--button-size);
+            height: var(--button-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #yesBtn {
             background: #ff3366;
             color: white;
             box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+            position: relative;
+            transform: scale(1);
+            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
-        #yesBtn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6);
+        #yesBtn:active {
+            transform: scale(0.95);
         }
 
         #noBtn {
             background: #4a4a4a;
             color: white;
-            transition: all 0.1s ease;
-            position: absolute;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            transform: translate(0, 0);
         }
 
         .message {
@@ -114,11 +128,12 @@
             height: 100%;
             top: 0;
             left: 0;
+            z-index: 999;
         }
 
         .heart {
             position: absolute;
-            font-size: 20px;
+            font-size: 24px;
             animation: float 5s ease-in infinite;
             opacity: 0;
         }
@@ -129,29 +144,20 @@
             100% { transform: translateY(-200px) translateX(100px) scale(0); opacity: 0; }
         }
 
-        /* Adjust for 1080x1920 viewport */
-        @media (max-width: 1080px) and (max-height: 1920px) {
+        @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
-
-            .container {
-                padding: 1.5rem;
-            }
-
-            .options {
-                flex-direction: column;
-            }
-
+            
             button {
-                font-size: 1.2rem;
-                width: 100%;
-                max-width: 90%;
-                margin-bottom: 1rem;
+                width: var(--mobile-button-size);
+                height: var(--mobile-button-size);
+                font-size: 1rem;
+                padding: 0.8rem;
             }
-
-            .floating-hearts .heart {
-                font-size: 15px; /* Slightly smaller hearts for the mobile layout */
+            
+            .options {
+                min-height: var(--mobile-button-size);
             }
         }
     </style>
@@ -162,7 +168,7 @@
         
         <div class="options">
             <button id="yesBtn" onclick="showResponse(true)">YES! 🎉</button>
-            <button id="noBtn" onmouseover="dodgeButton()" ontouchstart="dodgeButton()">Hmm... 🤔</button>
+            <button id="noBtn">Hmm... 🤔</button>
         </div>
 
         <div id="message" class="message">
@@ -178,60 +184,99 @@
     <div class="floating-hearts" id="heartsContainer"></div>
 
     <script>
-        // No button dodge within screen bounds and prevent overlap with "Yes" button
-        function dodgeButton() {
-            const btn = document.getElementById('noBtn');
-            const yesBtn = document.getElementById('yesBtn');
-            const container = btn.parentElement.getBoundingClientRect();
-            const btnRect = btn.getBoundingClientRect();
-            const yesBtnRect = yesBtn.getBoundingClientRect();
-            
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const containerWidth = container.width;
-            const containerHeight = container.height;
-            const safeMargin = 20; // Distance from the edge to avoid going out of viewport
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const container = document.querySelector('.container');
+        const messages = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
+        const MIN_DISTANCE = 80;
+        let isMoving = false;
 
-            const maxX = Math.min(containerWidth - btnRect.width, viewportWidth - safeMargin - btnRect.width);
-            const maxY = Math.min(containerHeight - btnRect.height, viewportHeight - safeMargin - btnRect.height);
+        function getValidPosition() {
+            const containerRect = container.getBoundingClientRect();
+            const yesRect = yesBtn.getBoundingClientRect();
+            const noRect = noBtn.getBoundingClientRect();
             
-            let x, y;
-            let overlap = true;
+            // Account for container padding
+            const style = window.getComputedStyle(container);
+            const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+            const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+            
+            const maxX = containerRect.width - noRect.width - paddingX;
+            const maxY = containerRect.height - noRect.height - paddingY;
+            
+            let isValidPosition = false;
+            let newX, newY;
+            let attempts = 0;
 
-            // Prevent overlap with "Yes" button and ensure no overflow
-            while (overlap) {
-                x = Math.random() * maxX;
-                y = Math.random() * maxY;
+            while (!isValidPosition && attempts < 100) {
+                newX = Math.random() * maxX;
+                newY = Math.random() * maxY;
                 
-                // Check if the new position overlaps with the "Yes" button
-                overlap = (
-                    x < yesBtnRect.right &&
-                    x + btnRect.width > yesBtnRect.left &&
-                    y < yesBtnRect.bottom &&
-                    y + btnRect.height > yesBtnRect.top
+                const yesCenterX = yesRect.left - containerRect.left + yesRect.width/2;
+                const yesCenterY = yesRect.top - containerRect.top + yesRect.height/2;
+                const noCenterX = newX + noRect.width/2;
+                const noCenterY = newY + noRect.height/2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(noCenterX - yesCenterX, 2) + 
+                    Math.pow(noCenterY - yesCenterY, 2)
                 );
 
-                // Ensure the button stays within the viewport bounds
-                if (x < 0) x = 0;
-                if (y < 0) y = 0;
-                if (x + btnRect.width > containerWidth) x = containerWidth - btnRect.width;
-                if (y + btnRect.height > containerHeight) y = containerHeight - btnRect.height;
+                isValidPosition = distance > MIN_DISTANCE &&
+                                 newX >= 0 &&
+                                 newY >= 0 &&
+                                 newX <= maxX &&
+                                 newY <= maxY;
+
+                attempts++;
             }
-            
-            btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 360}deg)`;
-            btn.innerHTML = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'][Math.floor(Math.random()*4)];
+
+            return { x: newX, y: newY };
         }
 
-        // Heart creation and animation
+        function moveButton() {
+            if (isMoving) return;
+            isMoving = true;
+            
+            const newPos = getValidPosition();
+            noBtn.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
+            noBtn.textContent = messages[Math.floor(Math.random() * messages.length)];
+            
+            noBtn.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            
+            setTimeout(() => {
+                noBtn.style.transition = '';
+                isMoving = false;
+            }, 400);
+        }
+
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
+
+        noBtn.addEventListener('mouseover', moveButton);
+        window.addEventListener('resize', moveButton);
+
+        function showResponse(yes) {
+            if(yes) {
+                document.getElementById('message').style.display = 'block';
+                document.querySelector('.options').style.display = 'none';
+                triggerConfetti();
+                createHearts();
+                setInterval(createHearts, 1000);
+            }
+        }
+
         function createHearts() {
             const container = document.getElementById('heartsContainer');
             const colors = ['#ff3366', '#ff1493', '#ff69b4', '#ff85a2'];
             
-            for(let i = 0; i < 50; i++) {
+            for(let i = 0; i < 20; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart';
                 heart.innerHTML = '❤️';
-                heart.style = `
+                heart.style.cssText = `
                     left: ${Math.random() * 100}%;
                     font-size: ${Math.random() * 30 + 20}px;
                     color: ${colors[Math.floor(Math.random() * colors.length)]};
@@ -243,19 +288,6 @@
             }
         }
 
-        // Response handler with confetti and hearts
-        function showResponse(yes) {
-            if(yes) {
-                document.getElementById('message').style.display = 'block';
-                document.querySelector('.options').style.display = 'none';
-                triggerConfetti();
-                createHearts();
-                // Continuous hearts
-                setInterval(createHearts, 1000);
-            }
-        }
-
-        // Confetti explosion
         function triggerConfetti() {
             const count = 200;
             const defaults = {
@@ -276,6 +308,8 @@
             fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
             fire(0.1, { spread: 120, startVelocity: 45 });
         }
+
+        moveButton();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
