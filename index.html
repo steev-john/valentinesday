@@ -16,7 +16,8 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            overflow-x: hidden;
+            overflow: hidden;
+            padding: 10px;
         }
 
         @keyframes gradient {
@@ -30,7 +31,8 @@
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
-            max-width: 90%;
+            width: 80%;
+            max-width: 700px;
             transform: scale(0.95);
             animation: containerEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
@@ -41,7 +43,7 @@
 
         h1 {
             color: #ff3366;
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin: 1rem 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             animation: titleFloat 3s ease-in-out infinite;
@@ -52,33 +54,25 @@
             50% { transform: translateY(-10px); }
         }
 
-        .heart-container {
-            font-size: 3rem;
-            margin: 2rem 0;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .heart-container:hover {
-            transform: scale(1.2);
-        }
-
         .options {
             display: flex;
+            flex-wrap: wrap;
             gap: 1rem;
             justify-content: center;
             margin: 2rem 0;
+            position: relative;
         }
 
         button {
             padding: 1rem 2rem;
             border: none;
             border-radius: 15px;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            width: 100%;
+            max-width: 250px;
         }
 
         #yesBtn {
@@ -96,25 +90,7 @@
             background: #4a4a4a;
             color: white;
             transition: all 0.1s ease;
-        }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .photo-grid img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 15px;
-            transition: transform 0.3s ease;
-        }
-
-        .photo-grid img:hover {
-            transform: scale(1.05);
+            position: absolute;
         }
 
         .message {
@@ -139,20 +115,51 @@
             top: 0;
             left: 0;
         }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            animation: float 5s ease-in infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) scale(0); opacity: 1; }
+            50% { transform: translateY(-100px) translateX(50px) scale(1); opacity: 1; }
+            100% { transform: translateY(-200px) translateX(100px) scale(0); opacity: 0; }
+        }
+
+        /* Adjust for 1080x1920 viewport */
+        @media (max-width: 1080px) and (max-height: 1920px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .options {
+                flex-direction: column;
+            }
+
+            button {
+                font-size: 1.2rem;
+                width: 100%;
+                max-width: 90%;
+                margin-bottom: 1rem;
+            }
+
+            .floating-hearts .heart {
+                font-size: 15px; /* Slightly smaller hearts for the mobile layout */
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Hey Love! 💖 Will You Be My Valentine?</h1>
         
-        <div class="heart-container" onclick="createHearts()">❤️</div>
-
-        <div class="photo-grid">
-            <img src="placeholder1.jpg" alt="Our Memory 1">
-            <img src="placeholder2.jpg" alt="Our Memory 2">
-            <img src="placeholder3.jpg" alt="Our Memory 3">
-        </div>
-
         <div class="options">
             <button id="yesBtn" onclick="showResponse(true)">YES! 🎉</button>
             <button id="noBtn" onmouseover="dodgeButton()" ontouchstart="dodgeButton()">Hmm... 🤔</button>
@@ -171,40 +178,80 @@
     <div class="floating-hearts" id="heartsContainer"></div>
 
     <script>
-        // Enhanced animations
+        // No button dodge within screen bounds and prevent overlap with "Yes" button
+        function dodgeButton() {
+            const btn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const container = btn.parentElement.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const containerWidth = container.width;
+            const containerHeight = container.height;
+            const safeMargin = 20; // Distance from the edge to avoid going out of viewport
+
+            const maxX = Math.min(containerWidth - btnRect.width, viewportWidth - safeMargin - btnRect.width);
+            const maxY = Math.min(containerHeight - btnRect.height, viewportHeight - safeMargin - btnRect.height);
+            
+            let x, y;
+            let overlap = true;
+
+            // Prevent overlap with "Yes" button and ensure no overflow
+            while (overlap) {
+                x = Math.random() * maxX;
+                y = Math.random() * maxY;
+                
+                // Check if the new position overlaps with the "Yes" button
+                overlap = (
+                    x < yesBtnRect.right &&
+                    x + btnRect.width > yesBtnRect.left &&
+                    y < yesBtnRect.bottom &&
+                    y + btnRect.height > yesBtnRect.top
+                );
+
+                // Ensure the button stays within the viewport bounds
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+                if (x + btnRect.width > containerWidth) x = containerWidth - btnRect.width;
+                if (y + btnRect.height > containerHeight) y = containerHeight - btnRect.height;
+            }
+            
+            btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 360}deg)`;
+            btn.innerHTML = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'][Math.floor(Math.random()*4)];
+        }
+
+        // Heart creation and animation
         function createHearts() {
             const container = document.getElementById('heartsContainer');
-            for(let i = 0; i < 10; i++) {
+            const colors = ['#ff3366', '#ff1493', '#ff69b4', '#ff85a2'];
+            
+            for(let i = 0; i < 50; i++) {
                 const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
                 heart.style = `
-                    position: absolute;
                     left: ${Math.random() * 100}%;
                     font-size: ${Math.random() * 30 + 20}px;
-                    animation: float ${Math.random() * 3 + 2}s ease-in infinite;
-                    opacity: ${Math.random() * 0.5 + 0.5};
+                    color: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation: float ${Math.random() * 4 + 3}s ease-in infinite;
+                    animation-delay: ${Math.random() * 2}s;
                 `;
-                heart.innerHTML = '❤️';
                 container.appendChild(heart);
                 setTimeout(() => heart.remove(), 5000);
             }
         }
 
-        // Dodge button with rotation
-        function dodgeButton() {
-            const btn = document.getElementById('noBtn');
-            const x = Math.random() * window.innerWidth * 0.5;
-            const y = Math.random() * window.innerHeight * 0.3;
-            btn.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 360}deg)`;
-            btn.innerHTML = ['Try harder! 😜','Podi 😤', 'Nope! 🙅', 'Not today! 😅', 'Catch me! 🏃'][Math.floor(Math.random()*4)];
-        }
-
-        // Response handler with confetti
+        // Response handler with confetti and hearts
         function showResponse(yes) {
             if(yes) {
                 document.getElementById('message').style.display = 'block';
                 document.querySelector('.options').style.display = 'none';
                 triggerConfetti();
                 createHearts();
+                // Continuous hearts
+                setInterval(createHearts, 1000);
             }
         }
 
@@ -229,21 +276,6 @@
             fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
             fire(0.1, { spread: 120, startVelocity: 45 });
         }
-
-        // Add floating hearts periodically
-        setInterval(createHearts, 3000);
-
-        // Initialize hover effects
-        document.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('mousemove', e => {
-                const rect = btn.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width * 100;
-                const y = (e.clientY - rect.top) / rect.height * 100;
-                btn.style.background = `radial-gradient(circle at ${x}% ${y}%, 
-                    ${btn.id === 'yesBtn' ? '#ff1a4d' : '#333333'}, 
-                    ${btn.id === 'yesBtn' ? '#ff3366' : '#4a4a4a'})`;
-            });
-        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
