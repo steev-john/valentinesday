@@ -6,6 +6,7 @@ const MIN_DISTANCE = 80;
 let isMoving = false;
 let yesBtnScale = 1;
 let isNoBtnInteracted = false;
+let isYesBtnInteracted = false; // Flag to track "Yes" button interaction
 
 function getValidPosition() {
     const containerRect = container.getBoundingClientRect();
@@ -158,11 +159,18 @@ function triggerConfetti() {
 }
 
 function increaseYesButtonSize() {
-    if (isNoBtnInteracted) {
+    if (isYesBtnInteracted) {
         yesBtnScale *= 1.2; // Increase size by 1.2x
         yesBtn.style.transform = `scale(${yesBtnScale})`;
     }
 }
 
+// Update: Track only touch/click interactions with the Yes button
+yesBtn.addEventListener('click', () => {
+    isYesBtnInteracted = true;  // Mark as interacted
+    increaseYesButtonSize();
+});
+
+// If you want the button to stop growing after reaching a certain size, you can check here
+// For now, the button will keep growing while interacted.
 moveButton();
-setInterval(increaseYesButtonSize, 500); // Increase size once every 50ms when the No button is clicked
