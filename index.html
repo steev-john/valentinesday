@@ -6,8 +6,11 @@
     <title>Will You Be My Valentine? 💘</title>
     <style>
         :root {
-            --button-size: 120px;
-            --mobile-button-size: 90px;
+            --button-width: 160px;
+            --button-height: 60px;
+            --mobile-button-width: 130px;
+            --mobile-button-height: 50px;
+            --button-radius: 30px;
         }
 
         body {
@@ -66,22 +69,18 @@
             justify-content: center;
             margin: 2rem 0;
             position: relative;
-            min-height: var(--button-size);
         }
 
         button {
-            padding: 1rem 2rem;
+            padding: 1rem;
             border: none;
-            border-radius: 15px;
+            border-radius: var(--button-radius);
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: absolute;
-            overflow: hidden;
-            touch-action: manipulation;
-            user-select: none;
-            width: var(--button-size);
-            height: var(--button-size);
+            position: relative;
+            width: var(--button-width);
+            height: var(--button-height);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -92,8 +91,7 @@
             color: white;
             box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
             position: relative;
-            transform: scale(1);
-            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: transform 0.2s ease-in-out;
         }
 
         #yesBtn:active {
@@ -176,14 +174,10 @@
             }
             
             button {
-                width: var(--mobile-button-size);
-                height: var(--mobile-button-size);
+                width: var(--mobile-button-width);
+                height: var(--mobile-button-height);
                 font-size: 1rem;
                 padding: 0.8rem;
-            }
-            
-            .options {
-                min-height: var(--mobile-button-size);
             }
         }
     </style>
@@ -216,6 +210,8 @@
         const messages = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
         const MIN_DISTANCE = 80;
         let isMoving = false;
+        let yesBtnScale = 1;
+        let isNoBtnInteracted = false;
 
         function getValidPosition() {
             const containerRect = container.getBoundingClientRect();
@@ -264,7 +260,12 @@
             isMoving = true;
             
             const newPos = getValidPosition();
-            noBtn.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
+            const maxX = window.innerWidth - noBtn.offsetWidth; // prevent off-screen movement
+            const maxY = window.innerHeight - noBtn.offsetHeight; // prevent off-screen movement
+            const validX = Math.min(Math.max(newPos.x, 0), maxX); // Clamp within bounds
+            const validY = Math.min(Math.max(newPos.y, 0), maxY); // Clamp within bounds
+
+            noBtn.style.transform = `translate(${validX}px, ${validY}px)`;
             noBtn.textContent = messages[Math.floor(Math.random() * messages.length)];
             
             noBtn.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
@@ -277,10 +278,19 @@
 
         noBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            isNoBtnInteracted = true;
             moveButton();
         });
 
-        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('mouseover', () => {
+            isNoBtnInteracted = true;
+            moveButton();
+        });
+
+        noBtn.addEventListener('mouseout', () => {
+            isNoBtnInteracted = false;
+        });
+
         window.addEventListener('resize', moveButton);
 
         function createHearts(count = 50) {
@@ -320,12 +330,10 @@
                 document.querySelector('.options').style.display = 'none';
                 triggerConfetti();
                 
-                // Big initial explosion
                 createHearts(100);
                 setTimeout(() => createHearts(75), 200);
                 setTimeout(() => createHearts(75), 400);
                 
-                // Ongoing hearts
                 const heartInterval = setInterval(() => {
                     createHearts(Math.random() * 10 + 10);
                 }, 1000);
@@ -355,7 +363,15 @@
             fire(0.1, { spread: 120, startVelocity: 45 });
         }
 
+        function increaseYesButtonSize() {
+            if (isNoBtnInteracted) {
+                yesBtnScale *= 1.2;
+                yesBtn.style.transform = `scale(${yesBtnScale})`;
+            }
+        }
+
         moveButton();
+        setInterval(increaseYesButtonSize, 500);
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
