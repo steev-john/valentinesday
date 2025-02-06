@@ -165,4 +165,4 @@ function increaseYesButtonSize() {
 }
 
 moveButton();
-setInterval(increaseYesButtonSize, 50); // Increase size once every 50ms when the No button is clicked
+setInterval(increaseYesButtonSize, 500); // Increase size once every 50ms when the No button is clicked
