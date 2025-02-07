@@ -7,7 +7,7 @@
 }
 
 body {
-    font-family: 'Comic Neue';
+    font-family: Arial, Helvetica, sans-serif;
     background: linear-gradient(-45deg, #ff6b6b, #ff8e8e, #ffb3b3, #ffd6d6);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
