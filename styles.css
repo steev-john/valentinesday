@@ -29,14 +29,15 @@ body {
 
 .container {
     background: rgba(255, 255, 255, 0.95);
-    padding: 2rem;
+    padding: 0.2rem;
     border-radius: 20px;
     box-shadow: 0 0 30px rgba(255, 105, 180, 0.3);
-    max-width: 90%;
+    max-width: 70%;
     transform: scale(0.95);
     animation: containerEntrance 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
     position: relative;
     z-index: 2;
+    /* overflow: ; */
 }
 
 @keyframes containerEntrance {
@@ -87,7 +88,6 @@ button {
     transition: transform 0.2s ease-in-out;
 }
 
-
 #yesBtn:active {
     transform: scale(0.95);
 }
@@ -97,6 +97,10 @@ button {
     color: white;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: absolute;
+    left: 50%; /* Start in the center */
+    top: 50%; /* Start in the center */
+    transform: translate(-50%, -50%); /* Center the button */
 }
 
 .message {
