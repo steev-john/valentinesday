@@ -1,41 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
-    const container = document.querySelector('.container');  // The first container where the No button should move
+    const container = document.querySelector('.container');
     const messages = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
     const MIN_DISTANCE = 80;
     let isMoving = false;
 
-    const scaleFactor = 1.2; // The factor by which the Yes button will grow each time the No button is clicked
-    let yesBtnScale = 1; // Initial scale factor for the Yes button
+    const scaleFactor = 1.2;
+    let yesBtnScale = 1;
 
-    // Function to grow the "Yes" button when the "No" button is clicked
     noBtn.addEventListener("click", () => {
-        yesBtnScale *= scaleFactor; // Increase the scale factor by multiplying
-        yesBtn.style.transform = `scale(${yesBtnScale})`; // Apply the new scale to the Yes button
-        yesBtn.style.transition = "transform 0.2s ease-in-out"; // Smooth transition for the scaling effect
+        yesBtnScale *= scaleFactor;
+        yesBtn.style.transform = `scale(${yesBtnScale})`;
+        yesBtn.style.transition = "transform 0.2s ease-in-out";
     });
 
-    // Function to get valid position for the No button inside the container
     function getValidPosition() {
-        const containerRect = container.getBoundingClientRect(); // Get the size and position of the container
-        const noRect = noBtn.getBoundingClientRect(); // Get the size of the No button
-
-        const maxX = containerRect.width - noRect.width; // Prevent the button from going out of container on the right
-        const maxY = containerRect.height - noRect.height; // Prevent the button from going out of container on the bottom
+        const containerRect = container.getBoundingClientRect();
+        const noRect = noBtn.getBoundingClientRect();
+        const maxX = containerRect.width - noRect.width;
+        const maxY = containerRect.height - noRect.height;
 
         let isValidPosition = false;
         let newX, newY;
         let attempts = 0;
 
-        // Try to find a valid position for the No button that does not collide with the Yes button
         while (!isValidPosition && attempts < 100) {
-            newX = Math.random() * maxX; // Get random X within container's width
-            newY = Math.random() * maxY; // Get random Y within container's height
+            newX = Math.random() * maxX;
+            newY = Math.random() * maxY;
 
             const yesRect = yesBtn.getBoundingClientRect();
-            const yesCenterX = yesRect.left + yesRect.width / 2;
-            const yesCenterY = yesRect.top + yesRect.height / 2;
+            const yesCenterX = yesRect.left - containerRect.left + yesRect.width / 2;
+            const yesCenterY = yesRect.top - containerRect.top + yesRect.height / 2;
             const noCenterX = newX + noRect.width / 2;
             const noCenterY = newY + noRect.height / 2;
 
@@ -44,35 +40,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 Math.pow(noCenterY - yesCenterY, 2)
             );
 
-            isValidPosition = distance > MIN_DISTANCE; // Ensure the distance between buttons is greater than MIN_DISTANCE
-
+            isValidPosition = distance > MIN_DISTANCE;
             attempts++;
         }
 
-        // Return the new valid position for the No button
         return { x: newX, y: newY };
     }
 
-    // Function to move the No button within the container
     function moveButton() {
         if (isMoving) return;
         isMoving = true;
 
-        const newPos = getValidPosition(); // Get a valid position for the No button inside the container
-
-        // Set the No button's new position within the bounds of the container
-        noBtn.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
+        const newPos = getValidPosition();
+        noBtn.style.left = `${newPos.x}px`;
+        noBtn.style.top = `${newPos.y}px`;
         noBtn.textContent = messages[Math.floor(Math.random() * messages.length)];
 
-        noBtn.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        noBtn.style.transition = 'left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
         setTimeout(() => {
-            noBtn.style.transition = '';
             isMoving = false;
         }, 400);
     }
 
-    // Add touchstart and mouseover listeners to move the No button
     noBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         moveButton();
@@ -86,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         moveButton();
     });
 
-    window.addEventListener('resize', moveButton); // Resize the No button's position on window resize
+    window.addEventListener('resize', moveButton);
 
     function createHearts(count = 50) {
         const container = document.getElementById('heartsContainer');
@@ -119,14 +109,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Function to show response when Yes button is clicked
     function showResponse(yes) {
         if(yes) {
-            document.getElementById('message').style.display = 'block'; // Show Thank You message
-            document.querySelector('.options').style.display = 'none'; // Hide options (Yes/No buttons)
+            document.getElementById('message').style.display = 'block';
+            document.querySelector('.options').style.display = 'none';
             triggerConfetti();
             
-            createHearts(100); // Create heart animations
+            createHearts(100);
             setTimeout(() => createHearts(75), 200);
             setTimeout(() => createHearts(75), 400);
 
@@ -138,9 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Event listener for Yes button
     yesBtn.addEventListener("click", () => {
-        showResponse(true); // Show Thank You message when Yes button is clicked
+        showResponse(true);
     });
 
     function triggerConfetti() {
@@ -164,5 +152,5 @@ document.addEventListener("DOMContentLoaded", () => {
         fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
-    moveButton(); // Initial move for the No button
+    moveButton();
 });
