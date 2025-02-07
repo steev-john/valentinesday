@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const container = document.querySelector('.container');
-    const messages = ['Podi 😤', 'Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
+    const messages = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
     const MIN_DISTANCE = 80;
     let isMoving = false;
 
@@ -87,9 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
             heart.className = 'heart';
             heart.innerHTML = '❤️';
 
-            const x1 = Math.random() * 40 - 20;
+            const x1 = Math.random() * 30 - 20;
             const y1 = Math.random() * 30;
-            const x2 = Math.random() * 80 - 40;
+            const x2 = Math.random() * 50 - 40;
             const y2 = Math.random() * 60 + 30;
 
             heart.style.cssText = `
