@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const container = document.querySelector('.container');
-    const messages = ['Try harder! 😜', 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
+    const messages = ['Try harder! 😜', 'Podi 😤, 'Nope! 🙅♀️', 'Not today! 😅', 'Catch me! 🏃♀️'];
     const MIN_DISTANCE = 80;
     let isMoving = false;
 
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
             isMoving = false;
-        }, 400);
+        }, 40);
     }
 
     noBtn.addEventListener('touchstart', (e) => {
