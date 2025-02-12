@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
             isMoving = false;
-        }, 40);
+        }, 4000);
     }
 
     noBtn.addEventListener('touchstart', (e) => {
